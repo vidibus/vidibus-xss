@@ -6,8 +6,8 @@ module Vidibus
         # Prepares XSS content for rendering.
         def escape_xss
           regexp = {
-            /^\/\/.+$/ => '',    # remove comments
-            # /\n\s*/ => '',    # trim indentation and remove linebreaks
+            /^\/\/.+$/ => '', # remove comments
+            # /\n\s*/ => '', # trim indentation and remove linebreaks
             /\/\/\<!\[CDATA\[(.*?)\/\/\]\]\>/ => "\\1" # remove //<![CDATA[...content...//]]>
           }
           c = clone

@@ -1,1 +1,0 @@
-require "xss/renderers/xss_renderer"

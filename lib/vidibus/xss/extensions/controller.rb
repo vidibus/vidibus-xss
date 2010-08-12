@@ -1,16 +1,19 @@
 module Vidibus
   module Xss
     module Extensions
-      
-      # Contains core modifications of rails controller methods.
       module Controller
+        extend ActiveSupport::Concern
         
-        def self.included(base)
-          base.class_eval do
-            
-            # Define some helper methods that should be available to helpers and views.
-            helper_method :url_for, :xss_request?, :fullpath_url
-          end
+        # def self.included(base)
+        #   base.class_eval do
+        #     
+        #     # Define some helper methods that should be available to helpers and views.
+        #     helper_method :url_for, :xss_request?, :fullpath_url
+        #   end
+        # end
+        
+        included do
+          helper_method :url_for, :xss_request?, :fullpath_url
         end
         
         # Responds to OPTIONS request.
@@ -189,14 +192,10 @@ module Vidibus
             xss_content = %(var #{function_name}=function(){if(vidibus.loader.complete){#{xss_content}}else{window.setTimeout('#{function_name}()',100);}};#{function_name}();)
           end
           xss << xss_content
-          
-          Rails.logger.error xss
-
           xss_access_control_headers
           self.status = 200 # force success status
           self.response_body = xss
         end
-
 
         # Generates random string for current cycle.
         def xss_random_string
@@ -207,78 +206,6 @@ module Vidibus
           end
         end
         
-      
-        # # Invokes loading of given stylesheet.
-        # def load_xss_stylesheet(url)
-        #   %(vidibus.xss.loadStylesheet("#{url}");)
-        # end
-        # 
-        # # Invokes loading of given javascript.
-        # def load_xss_javascript(url)
-        #   %(vidibus.xss.loadJavascript("#{url}");)
-        # end
-        # 
-        # # Invokes embedding of html from given template.
-        # def xss_template(template, options = {})
-        #   scope = options.delete(:scope)
-        #   html = render_to_string({ :template => template, :layout => false }).to_json
-        #   %(vidibus.xss.embedHtml({scope:"#{scope}", html:#{html}});)
-        # end
-        # 
-        # # Invokes direct redirect to given url.
-        # # This works only for GET requests. See redirect_xss for more information.
-        # def xss_redirect(url)
-        #   %(vidibus.xss.redirect("#{url}"))
-        # end
-        # 
-        # # Invokes setting of fragment from given url.
-        # def xss_fragment(url)
-        #   %(vidibus.xss.setFragment("#{url}"))
-        # end
-        # 
-        # 
-        # 
-        # # Redirect to a xss url.
-        # # For POST request, invoke callback action.
-        # # For GET request, render redirect action directly.
-        # def redirect_xss(url)
-        #   if request.method == "POST" # request.post?
-        #     render_xss_callback(:redirect, :to => url)
-        #   else
-        #     render_xss(xss_redirect(url))
-        #   end
-        # end  
-        # 
-        # # Sends data to callback handler.
-        # # Inspired by:
-        # #   http://paydrotalks.com/posts/45-standard-json-response-for-rails-and-jquery
-        # def render_xss_callback(type, options = {})
-        #   unless [ :ok, :redirect, :error ].include?(type)
-        #     raise "Invalid XSS response type: #{type}"
-        #   end
-        # 
-        #   data = {
-        #     :status => type, 
-        #     :html => nil, 
-        #     :message => nil, 
-        #     :to => nil 
-        #   }.merge(options)
-        # 
-        #   render_xss("vidibus.xss.callbackHandler(#{data.to_json})")
-        # end
-        # 
-        # # Sends given content parts as XSS content.
-        # def render_xss(*parts)
-        #   xss = parts.compact.join(";").escape_xss
-        #   xss_access_control_headers
-        #   send_data(xss, :type => Mime::XSS)
-        # end
-        # 
-        # # Returns current url with full path.
-        # def fullpath_url
-        #   @fullpath_url ||= "#{request.protocol}#{request.host_with_port}#{request.fullpath}"
-        # end
-
 
         ### Override core extensions
 
@@ -323,7 +250,7 @@ module Vidibus
         end
 
         # Extensions of render method:
-        # Renders XSS response, if requested
+        # Renders XSS response if requested
         def render(*args, &block)
           args << options = args.extract_options!
           if xss_request? or options[:format] == :xss
@@ -333,7 +260,7 @@ module Vidibus
               content = render_to_string(:template => "layouts/#{get_layout(:xss)}")
               xss = render_to_xss(content)
               xss[:get] = "/#{path}"
-              xss.delete(:content) # make sure not content will be embedded
+              xss.delete(:content) # Ensure that not content will be embedded!
 
             # embed xss content
             else
