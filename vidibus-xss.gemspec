@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vidibus-xss}
-  s.version = "0.1.2"
+  s.version = "0.1.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andre Pankratz"]
-  s.date = %q{2010-08-12}
+  s.date = %q{2010-08-13}
   s.description = %q{Drop-in XSS support for remote applications.}
   s.email = %q{andre@vidibus.com}
   s.extra_rdoc_files = [
@@ -33,7 +33,6 @@ Gem::Specification.new do |s|
      "public/javascripts/jquery.ba-bbq.js",
      "public/javascripts/vidibus.js",
      "public/javascripts/vidibus.xss.js",
-     "public/javascripts/vidibus.xss.location.js",
      "spec/spec.opts",
      "spec/spec_helper.rb",
      "vidibus-xss.gemspec"
