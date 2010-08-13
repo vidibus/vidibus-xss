@@ -16,7 +16,7 @@ Then call bundle install on your console.
 
 == Usage
 
-TODO: how to?
+TODO: describe
 
 
 == Copyright

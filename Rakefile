@@ -14,7 +14,9 @@ begin
     gem.add_development_dependency "relevance-rcov"
     gem.add_development_dependency "rr"
     gem.add_dependency "rails", ">= 3.0.0.rc"
+    gem.add_dependency "nokogiri"
     gem.add_dependency "vidibus-routing_error"
+    
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new

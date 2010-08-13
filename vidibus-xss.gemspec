@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vidibus-xss}
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andre Pankratz"]
@@ -16,7 +16,8 @@ Gem::Specification.new do |s|
     "README.rdoc"
   ]
   s.files = [
-    "MIT-LICENSE",
+    ".gitignore",
+     "MIT-LICENSE",
      "README.rdoc",
      "Rakefile",
      "VERSION",
@@ -29,7 +30,13 @@ Gem::Specification.new do |s|
      "lib/vidibus/xss/extensions/string.rb",
      "lib/vidibus/xss/extensions/view.rb",
      "lib/vidibus/xss/mime_type.rb",
-     "public/javascripts/test.js"
+     "public/javascripts/jquery.ba-bbq.js",
+     "public/javascripts/vidibus.js",
+     "public/javascripts/vidibus.xss.js",
+     "public/javascripts/vidibus.xss.location.js",
+     "spec/spec.opts",
+     "spec/spec_helper.rb",
+     "vidibus-xss.gemspec"
   ]
   s.homepage = %q{http://github.com/vidibus/vidibus-xss}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -49,17 +56,23 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<relevance-rcov>, [">= 0"])
       s.add_development_dependency(%q<rr>, [">= 0"])
       s.add_runtime_dependency(%q<rails>, [">= 3.0.0.rc"])
+      s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
+      s.add_runtime_dependency(%q<vidibus-routing_error>, [">= 0"])
     else
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
       s.add_dependency(%q<relevance-rcov>, [">= 0"])
       s.add_dependency(%q<rr>, [">= 0"])
       s.add_dependency(%q<rails>, [">= 3.0.0.rc"])
+      s.add_dependency(%q<nokogiri>, [">= 0"])
+      s.add_dependency(%q<vidibus-routing_error>, [">= 0"])
     end
   else
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
     s.add_dependency(%q<relevance-rcov>, [">= 0"])
     s.add_dependency(%q<rr>, [">= 0"])
     s.add_dependency(%q<rails>, [">= 3.0.0.rc"])
+    s.add_dependency(%q<nokogiri>, [">= 0"])
+    s.add_dependency(%q<vidibus-routing_error>, [">= 0"])
   end
 end
 

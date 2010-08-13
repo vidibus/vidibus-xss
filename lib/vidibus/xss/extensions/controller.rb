@@ -1,39 +1,55 @@
+require "nokogiri"
+
 module Vidibus
   module Xss
     module Extensions
       module Controller
         extend ActiveSupport::Concern
         
-        # def self.included(base)
-        #   base.class_eval do
-        #     
-        #     # Define some helper methods that should be available to helpers and views.
-        #     helper_method :url_for, :xss_request?, :fullpath_url
-        #   end
-        # end
-        
         included do
-          helper_method :url_for, :xss_request?, :fullpath_url
-        end
-        
-        # Responds to OPTIONS request.
-        # When sending data to foreign domain by AJAX, Firefox will send an OPTIONS request first.
-        # 
-        # == Usage:
-        #
-        #  Set up a catch-all route for handling 404s like this, if you haven't done it already: 
-        #    match "*path" => "application#rescue_404"
-        #
-        #  In ApplicationController, define a method that will be called by this catch-all route:
-        #    def rescue_404
-        #      respond_to_options_request
-        #    end
-        #
-        def respond_to_options_request
-          return unless options_request?
-          xss_access_control_headers
-          render(:text => "OK", :status => 200) and return true
-        end
+           helper_method :url_for, :xss_request?, :fullpath_url
+           #layout :get_layout
+
+           respond_to :html, :xss
+
+           rescue_from ActionController::RoutingError, :with => :rescue_404
+         end
+         
+         protected
+         
+         # Returns layout for current request format.
+         def get_layout(format = nil)
+           (xss_request? or format == :xss) ? 'xss.haml' : 'application'
+         end
+         
+         # 
+         # IMPORTANT: restart server to apply modifications.
+         def rescue_404
+           return if respond_to_options_request
+           super
+           #render :template => "shared/404", :status => 404
+         end
+
+         # Responds to OPTIONS request.
+         # When sending data to foreign domain by AJAX, Firefox will send an OPTIONS request first.
+         # 
+         # == Usage:
+         #
+         #  Set up a catch-all route for handling 404s like this, if you haven't done it already:
+         #
+         #    match "*path" => "application#rescue_404"
+         #
+         #  In ApplicationController, define a method that will be called by this catch-all route:
+         #
+         #    def rescue_404
+         #      respond_to_options_request
+         #    end
+         #
+         def respond_to_options_request
+           return unless options_request?
+           xss_access_control_headers
+           render(:text => "OK", :status => 200) and return true
+         end
       
         # Returns true if current request is in XSS format.
         def xss_request?
@@ -57,7 +73,7 @@ module Vidibus
         # For more information, see: https://developer.mozilla.org/En/HTTP_access_control
         def xss_access_control_headers
           headers["Access-Control-Allow-Origin"] = "*"
-          headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+          headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, OPTIONS"
         end
         
         def extract_xss_html(dom)
