@@ -74,6 +74,7 @@ module Vidibus
         def xss_access_control_headers
           headers["Access-Control-Allow-Origin"] = "*"
           headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, OPTIONS"
+          headers["Access-Control-Allow-Headers"] = "Content-Type"
         end
         
         def extract_xss_html(dom)
