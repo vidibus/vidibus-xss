@@ -20,6 +20,19 @@ module Vidibus
         
         protected
         
+        # Returns true if requesting client is in list of xss clients.
+        def xss_client?
+          @is_xss_client ||= !!xss_client
+        end
+  
+        # Returns requesting client if it is in list of xss clients.
+        def xss_client
+          @xss_client ||= begin
+            return unless origin = request.headers["Origin"]
+            xss_clients.detect { |c| c == origin }
+          end
+        end
+        
         # Returns layout for current request format.
         def get_layout(format = nil)
           (xss_request? or format == :xss) ? 'xss.haml' : 'application'
@@ -73,7 +86,7 @@ module Vidibus
         # Set access control headers to allow cross-domain XMLHttpRequest calls.
         # For more information, see: https://developer.mozilla.org/En/HTTP_access_control
         def xss_access_control_headers
-          headers["Access-Control-Allow-Origin"] = xss_clients.join(",")
+          headers["Access-Control-Allow-Origin"] = xss_client if xss_client
           headers["Access-Control-Allow-Methods"] = "GET,PUT,POST,OPTIONS"
           headers["Access-Control-Allow-Headers"] = "Content-Type,Depth,User-Agent,X-File-Size,X-Requested-With,If-Modified-Since,X-File-Name,Cache-Control"
           headers["Access-Control-Allow-Credentials"] = "true"
@@ -296,7 +309,7 @@ module Vidibus
 
             render_xss(xss)
           else
-            if xss_clients.include?(request.headers["Origin"])
+            if xss_client?
               xss_access_control_headers
             end
             super(*args, &block)
