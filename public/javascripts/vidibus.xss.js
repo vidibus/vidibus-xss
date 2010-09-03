@@ -14,7 +14,6 @@
 //     $.ajax({...});
 // }
 
-
 vidibus.xss = {
   initialized: {},      // holds true for every scope that has been initialized
   fileExtension: 'xss', // use 'xss' as file extension
@@ -309,6 +308,7 @@ $(function($) {
             data['_method'] = method;
             method = 'POST';
           }
+          $.extend(data, vidibus.csrf.data());
           $.ajax({
             url: url,
             data: data,
@@ -316,6 +316,7 @@ $(function($) {
             type: method.toUpperCase(),
             beforeSend: function(xhr) {
               el.trigger('ajax:loading', xhr);
+              xhr.withCredentials = "true";
             },
             success: function(data, status, xhr) {
               el.trigger('ajax:success', [data, status, xhr]);
@@ -333,3 +334,16 @@ $(function($) {
     }
   });
 });
+
+/**
+ * Try to send xhr request withCredentials.
+ * Unfortunately, this has to be set after the connection has been opened.
+ * If you set a beforeSend handler yourself, you have to set withCredentials by yourself.
+ */
+$.ajaxSettings.beforeSend = function(xhr) {
+  try {
+    xhr.withCredentials = "true";
+  } catch(e) {
+    alert('Cannot set xhr with credentials:\n'+e)
+  }
+};

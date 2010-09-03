@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vidibus-xss}
-  s.version = "0.1.6"
+  s.version = "0.1.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andre Pankratz"]
-  s.date = %q{2010-08-17}
+  s.date = %q{2010-09-03}
   s.description = %q{Drop-in XSS support for remote applications.}
   s.email = %q{andre@vidibus.com}
   s.extra_rdoc_files = [
@@ -33,7 +33,6 @@ Gem::Specification.new do |s|
      "public/javascripts/jquery.ba-bbq.js",
      "public/javascripts/vidibus.js",
      "public/javascripts/vidibus.xss.js",
-     "spec/spec.opts",
      "spec/spec_helper.rb",
      "vidibus-xss.gemspec"
   ]
@@ -51,24 +50,15 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
-      s.add_development_dependency(%q<relevance-rcov>, [">= 0"])
-      s.add_development_dependency(%q<rr>, [">= 0"])
       s.add_runtime_dependency(%q<rails>, [">= 3.0.0.rc"])
       s.add_runtime_dependency(%q<nokogiri>, [">= 0"])
       s.add_runtime_dependency(%q<vidibus-routing_error>, [">= 0"])
     else
-      s.add_dependency(%q<rspec>, [">= 1.2.9"])
-      s.add_dependency(%q<relevance-rcov>, [">= 0"])
-      s.add_dependency(%q<rr>, [">= 0"])
       s.add_dependency(%q<rails>, [">= 3.0.0.rc"])
       s.add_dependency(%q<nokogiri>, [">= 0"])
       s.add_dependency(%q<vidibus-routing_error>, [">= 0"])
     end
   else
-    s.add_dependency(%q<rspec>, [">= 1.2.9"])
-    s.add_dependency(%q<relevance-rcov>, [">= 0"])
-    s.add_dependency(%q<rr>, [">= 0"])
     s.add_dependency(%q<rails>, [">= 3.0.0.rc"])
     s.add_dependency(%q<nokogiri>, [">= 0"])
     s.add_dependency(%q<vidibus-routing_error>, [">= 0"])

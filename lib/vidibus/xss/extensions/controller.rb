@@ -4,52 +4,53 @@ module Vidibus
   module Xss
     module Extensions
       module Controller
+        
         extend ActiveSupport::Concern
         
         included do
-           helper_method :url_for, :xss_request?, :fullpath_url
-           #layout :get_layout
+          helper_method :url_for, :xss_request?, :fullpath_url
+          respond_to :html, :xss
+          rescue_from ActionController::RoutingError, :with => :rescue_404
+        end
+        
+        # Set hostname of clients that are allowed to access this resource.
+        def xss_clients
+          raise %(Define #xss_clients in your ApplicationController that returns all hosts that are allowed to access your service.\nExample: %w[http://myconsumer.local])
+        end
+        
+        protected
+        
+        # Returns layout for current request format.
+        def get_layout(format = nil)
+          (xss_request? or format == :xss) ? 'xss.haml' : 'application'
+        end
+        
+        # IMPORTANT: restart server to apply modifications.
+        def rescue_404
+          return if respond_to_options_request
+          super
+        end
 
-           respond_to :html, :xss
-
-           rescue_from ActionController::RoutingError, :with => :rescue_404
-         end
-         
-         protected
-         
-         # Returns layout for current request format.
-         def get_layout(format = nil)
-           (xss_request? or format == :xss) ? 'xss.haml' : 'application'
-         end
-         
-         # 
-         # IMPORTANT: restart server to apply modifications.
-         def rescue_404
-           return if respond_to_options_request
-           super
-           #render :template => "shared/404", :status => 404
-         end
-
-         # Responds to OPTIONS request.
-         # When sending data to foreign domain by AJAX, Firefox will send an OPTIONS request first.
-         # 
-         # == Usage:
-         #
-         #  Set up a catch-all route for handling 404s like this, if you haven't done it already:
-         #
-         #    match "*path" => "application#rescue_404"
-         #
-         #  In ApplicationController, define a method that will be called by this catch-all route:
-         #
-         #    def rescue_404
-         #      respond_to_options_request
-         #    end
-         #
-         def respond_to_options_request
-           return unless options_request?
-           xss_access_control_headers
-           render(:text => "OK", :status => 200) and return true
-         end
+        # Responds to OPTIONS request.
+        # When sending data to foreign domain by AJAX, Firefox will send an OPTIONS request first.
+        # 
+        # == Usage:
+        #
+        #  Set up a catch-all route for handling 404s like this, if you haven't done it already:
+        #
+        #    match "*path" => "application#rescue_404"
+        #
+        #  In ApplicationController, define a method that will be called by this catch-all route:
+        #
+        #    def rescue_404
+        #      respond_to_options_request
+        #    end
+        #
+        def respond_to_options_request
+          return unless options_request?
+          xss_access_control_headers
+          render(:text => "OK", :status => 200) and return true
+        end
       
         # Returns true if current request is in XSS format.
         def xss_request?
@@ -72,9 +73,11 @@ module Vidibus
         # Set access control headers to allow cross-domain XMLHttpRequest calls.
         # For more information, see: https://developer.mozilla.org/En/HTTP_access_control
         def xss_access_control_headers
-          headers["Access-Control-Allow-Origin"] = "*"
-          headers["Access-Control-Allow-Methods"] = "GET, PUT, POST, OPTIONS"
-          headers["Access-Control-Allow-Headers"] = "Content-Type"
+          headers["Access-Control-Allow-Origin"] = xss_clients.join(",")
+          headers["Access-Control-Allow-Methods"] = "GET,PUT,POST,OPTIONS"
+          headers["Access-Control-Allow-Headers"] = "Content-Type,Depth,User-Agent,X-File-Size,X-Requested-With,If-Modified-Since,X-File-Name,Cache-Control"
+          headers["Access-Control-Allow-Credentials"] = "true"
+          headers["Access-Control-Max-Age"] = "1728000" # Cache this response for 20 days.
         end
         
         def extract_xss_html(dom)
@@ -167,12 +170,12 @@ module Vidibus
           path = options.delete(:get)
           redirect = options.delete(:redirect)
           callback = options.delete(:callback)
-
+          
           raise "Please provide :content, :get, :redirect or :callback." unless content or path or redirect or callback
           raise "Please provide either :content to render or :get location to load. Not both." if content and path
-
+          
           xss = ""
-
+          
           # determine scope
           if !(scope = params[:scope]).blank?
             scope = "$('##{scope}')"
@@ -180,7 +183,7 @@ module Vidibus
             scope = "$s#{xss_random_string}"
             xss << %(var #{scope}=vidibus.xss.detectScope();)
           end
-
+          
           # set host for current scope
           xss << %(vidibus.xss.setHost('#{request.protocol}#{request.host_with_port}',#{scope});)
 
@@ -202,7 +205,9 @@ module Vidibus
               %(vidibus.xss.callback(#{callback.to_json},#{scope});)
             end
           end
-
+          
+          xss_content << xss_csrf_vars
+          
           # wait until resources have been loaded, before rendering XSS content
           if defer
             function_name = "rx#{xss_random_string}"
@@ -222,16 +227,19 @@ module Vidibus
             random
           end
         end
-        
+
+        # Sets vars for CSRF protection.
+        def xss_csrf_vars
+          %(vidibus.csrf.param='#{request_forgery_protection_token}', vidibus.csrf.token='#{form_authenticity_token}';)
+        end
 
         ### Override core extensions
 
-
-        # Bypasses authenticity verification for XSS requests.
-        # TODO: Verify authenticity in other ways (Single Sign-on).
-        def verify_authenticity_token
-          xss_request? || super
-        end
+        # # Bypasses authenticity verification for XSS requests.
+        # # TODO: Verify authenticity in other ways (Single Sign-on).
+        # def verify_authenticity_token
+        #   xss_request? || super
+        # end
         
         # Extension of url_for:
         # Transform given relative paths into absolute urls.
@@ -267,7 +275,8 @@ module Vidibus
         end
 
         # Extensions of render method:
-        # Renders XSS response if requested
+        # Renders XSS response if requested.
+        # If Origin is withing allowed xss_clients, xss heades will be sent to allow authorization.
         def render(*args, &block)
           args << options = args.extract_options!
           if xss_request? or options[:format] == :xss
@@ -287,6 +296,9 @@ module Vidibus
 
             render_xss(xss)
           else
+            if xss_clients.include?(request.headers["Origin"])
+              xss_access_control_headers
+            end
             super(*args, &block)
           end
         end
