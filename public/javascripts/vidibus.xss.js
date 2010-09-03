@@ -316,7 +316,6 @@ $(function($) {
             type: method.toUpperCase(),
             beforeSend: function(xhr) {
               el.trigger('ajax:loading', xhr);
-              xhr.withCredentials = "true";
             },
             success: function(data, status, xhr) {
               el.trigger('ajax:success', [data, status, xhr]);
@@ -333,17 +332,32 @@ $(function($) {
       }
     }
   });
+  
+  /**
+   * Extend xhr object to send credentials and force XMLHttpRequest.
+   */
+  extendXhr = function(xhr) {
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    try {
+      xhr.withCredentials = "true";
+    } catch(e) {
+      alert('Cannot set xhr with credentials:\n'+e)
+    }
+  };
+  
+  /**
+   * Extends xhr on beforeSend by binding to Rails' ajax:loading event.
+   */
+  $("body").bind('ajax:loading', function(e, xhr) {
+    extendXhr(xhr);
+  });
+  
+  /**
+   * Try to send xhr request withCredentials.
+   * Unfortunately, this has to be set after the connection has been opened.
+   * If you set a beforeSend handler yourself, you have to set withCredentials by yourself.
+   */
+  $.ajaxSettings.beforeSend = function(xhr) {
+    extendXhr(xhr);
+  };
 });
-
-/**
- * Try to send xhr request withCredentials.
- * Unfortunately, this has to be set after the connection has been opened.
- * If you set a beforeSend handler yourself, you have to set withCredentials by yourself.
- */
-$.ajaxSettings.beforeSend = function(xhr) {
-  try {
-    xhr.withCredentials = "true";
-  } catch(e) {
-    alert('Cannot set xhr with credentials:\n'+e)
-  }
-};
