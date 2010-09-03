@@ -16,7 +16,11 @@ Gem::Specification.new do |s|
     "README.rdoc"
   ]
   s.files = [
-    ".gitignore",
+    ".bundle/config",
+     ".gitignore",
+     ".rspec",
+     "Gemfile",
+     "Gemfile.lock",
      "MIT-LICENSE",
      "README.rdoc",
      "Rakefile",
@@ -32,6 +36,7 @@ Gem::Specification.new do |s|
      "lib/vidibus/xss/mime_type.rb",
      "public/javascripts/jquery.ba-bbq.js",
      "public/javascripts/vidibus.js",
+     "public/javascripts/vidibus.loader.js",
      "public/javascripts/vidibus.xss.js",
      "spec/spec_helper.rb",
      "vidibus-xss.gemspec"
