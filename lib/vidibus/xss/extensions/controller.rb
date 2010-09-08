@@ -87,7 +87,7 @@ module Vidibus
         # For more information, see: https://developer.mozilla.org/En/HTTP_access_control
         def xss_access_control_headers
           headers["Access-Control-Allow-Origin"] = xss_client if xss_client
-          headers["Access-Control-Allow-Methods"] = "GET,PUT,POST,OPTIONS"
+          headers["Access-Control-Allow-Methods"] = "GET,PUT,POST,DELETE,HEAD,OPTIONS"
           headers["Access-Control-Allow-Headers"] = "Content-Type,Depth,User-Agent,X-File-Size,X-Requested-With,If-Modified-Since,X-File-Name,Cache-Control"
           headers["Access-Control-Allow-Credentials"] = "true"
           headers["Access-Control-Max-Age"] = "1728000" # Cache this response for 20 days.
