@@ -228,6 +228,7 @@ module Vidibus
           end
           xss << xss_content
           xss_access_control_headers
+          self.content_type = Mime::XSS
           self.status = 200 # force success status
           self.response_body = xss
         end
