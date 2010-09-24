@@ -15,7 +15,7 @@ module Vidibus
         
         # Set hostname of clients that are allowed to access this resource.
         def xss_clients
-          raise %(Define #xss_clients in your ApplicationController that returns all hosts that are allowed to access your service.\nExample: %w[http://myconsumer.local])
+          [request.headers["Origin"]]
         end
         
         protected
@@ -29,6 +29,10 @@ module Vidibus
         def xss_client
           @xss_client ||= begin
             return unless origin = request.headers["Origin"]
+            unless xss_clients
+              raise %(Define a list of xss_clients in your ApplicationController that returns all hosts that are allowed to access your service.\nExample: %w[http://myconsumer.local])
+            end
+            xss_clients = [xss_clients] unless xss_clients.is_a?(Array)
             xss_clients.detect { |c| c == origin }
           end
         end
