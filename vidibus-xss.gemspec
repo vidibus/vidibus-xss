@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vidibus-xss}
-  s.version = "0.1.11"
+  s.version = "0.1.12"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andre Pankratz"]
-  s.date = %q{2010-09-09}
+  s.date = %q{2010-09-24}
   s.description = %q{Drop-in XSS support for remote applications.}
   s.email = %q{andre@vidibus.com}
   s.extra_rdoc_files = [
