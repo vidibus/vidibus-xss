@@ -4,27 +4,27 @@ module Vidibus
   module Xss
     module Extensions
       module Controller
-        
+
         extend ActiveSupport::Concern
-        
+
         included do
           helper_method :url_for, :xss_request?, :fullpath_url
           respond_to :html, :xss
           rescue_from ActionController::RoutingError, :with => :rescue_404
         end
-        
+
         # Set hostname of clients that are allowed to access this resource.
         def xss_clients
           [request.headers["Origin"]]
         end
-        
+
         protected
-        
+
         # Returns true if requesting client is in list of xss clients.
         def xss_client?
           @is_xss_client ||= !!xss_client
         end
-  
+
         # Returns requesting client if it is in list of xss clients.
         def xss_client
           @xss_client ||= begin
@@ -36,12 +36,12 @@ module Vidibus
             xss_clients.detect { |c| c == origin }
           end
         end
-        
+
         # Returns layout for current request format.
         def get_layout(format = nil)
           (xss_request? or format == :xss) ? 'xss.haml' : 'application'
         end
-        
+
         # IMPORTANT: restart server to apply modifications.
         def rescue_404
           return if respond_to_options_request
@@ -50,7 +50,7 @@ module Vidibus
 
         # Responds to OPTIONS request.
         # When sending data to foreign domain by AJAX, Firefox will send an OPTIONS request first.
-        # 
+        #
         # == Usage:
         #
         #  Set up a catch-all route for handling 404s like this, if you haven't done it already:
@@ -68,7 +68,7 @@ module Vidibus
           xss_access_control_headers
           render(:text => "OK", :status => 200) and return true
         end
-      
+
         # Returns true if current request is in XSS format.
         def xss_request?
           @is_xss ||= begin
@@ -81,12 +81,12 @@ module Vidibus
             end
           end
         end
-      
+
         # Returns true if the current request is an OPTIONS request.
         def options_request?
           @is_options_request ||= request.method == "OPTIONS"
         end
-        
+
         # Set access control headers to allow cross-domain XMLHttpRequest calls.
         # For more information, see: https://developer.mozilla.org/En/HTTP_access_control
         def xss_access_control_headers
@@ -96,13 +96,13 @@ module Vidibus
           headers["Access-Control-Allow-Credentials"] = "true"
           headers["Access-Control-Max-Age"] = "1728000" # Cache this response for 20 days.
         end
-        
+
         def extract_xss_html(dom)
           dom.css('body').first.inner_html
         end
 
         # Extracts javascript resources from given DOM object.
-        # 
+        #
         # Usage:
         #
         #   dom = Nokogiri::HTML(<html></html>)
@@ -119,7 +119,7 @@ module Vidibus
         end
 
         # Extracts stylesheet resources from given DOM object.
-        # 
+        #
         # Usage:
         #
         #   dom = Nokogiri::HTML(<html></html>)
@@ -137,19 +137,19 @@ module Vidibus
         end
 
         # Renders given content string to XSS hash of resources and content.
-        # If html content is given, the method tries to extract title, 
+        # If html content is given, the method tries to extract title,
         # stylesheets and javascripts from head and content from body.
         # TODO: Allow script blocks! Add them to body?
         # TODO: Allow style blocks?
         # TODO: Check for html content
         def render_to_xss(content)
           dom = Nokogiri::HTML(content)
-          { 
-            :resources => extract_xss_javascripts(dom) + extract_xss_stylesheets(dom), 
-            :content => extract_xss_html(dom) 
+          {
+            :resources => extract_xss_javascripts(dom) + extract_xss_stylesheets(dom),
+            :content => extract_xss_html(dom)
           }
         end
-        
+
         # Redirect to a xss url.
         # For POST request, invoke callback action.
         # For GET request, render redirect action directly.
@@ -170,15 +170,15 @@ module Vidibus
           end
 
           data = {
-            :status => type, 
-            :html => nil, 
-            :message => nil, 
-            :to => nil 
+            :status => type,
+            :html => nil,
+            :message => nil,
+            :to => nil
           }.merge(options)
 
           render_xss(:callback => data)
         end
-        
+
         # Main method for rendering XSS.
         # Renders given XSS resources and content to string and sets it as response_body.
         def render_xss(options = {})
@@ -187,12 +187,12 @@ module Vidibus
           path = options.delete(:get)
           redirect = options.delete(:redirect)
           callback = options.delete(:callback)
-          
+
           raise "Please provide :content, :get, :redirect or :callback." unless content or path or redirect or callback
           raise "Please provide either :content to render or :get location to load. Not both." if content and path
-          
+
           xss = ""
-          
+
           # determine scope
           if !(scope = params[:scope]).blank?
             scope = "$('##{scope}')"
@@ -200,7 +200,7 @@ module Vidibus
             scope = "$s#{xss_random_string}"
             xss << %(var #{scope}=vidibus.xss.detectScope();)
           end
-          
+
           # set host for current scope
           xss << %(vidibus.xss.setHost('#{request.protocol}#{request.host_with_port}',#{scope});)
 
@@ -222,9 +222,9 @@ module Vidibus
               %(vidibus.xss.callback(#{callback.to_json},#{scope});)
             end
           end
-          
+
           xss_content << xss_csrf_vars
-          
+
           # wait until resources have been loaded, before rendering XSS content
           if defer
             function_name = "rx#{xss_random_string}"
@@ -258,11 +258,11 @@ module Vidibus
         # def verify_authenticity_token
         #   xss_request? || super
         # end
-        
+
         # Extension of url_for:
         # Transform given relative paths into absolute urls.
-        # 
-        # Usage: 
+        #
+        # Usage:
         #   url_for("/stylesheets/vidibus.css", :only_path => false)
         #
         def url_for(*args)
@@ -277,7 +277,7 @@ module Vidibus
 
         # Chatches redirect calls for XSS locations.
         # If a XSS location is given, XSS content will be rendered instead of redirecting.
-        # 
+        #
         # == Usage:
         #
         #   respond_to do |format|

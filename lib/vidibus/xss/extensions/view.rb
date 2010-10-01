@@ -2,7 +2,7 @@ module Vidibus
   module Xss
     module Extensions
       module View
-      
+
         # Sets XSS attributes on given ones.
         def set_xss_html_attributes(attributes)
           attributes['data-xss'] = true
