@@ -13,7 +13,7 @@ begin
     gem.email = "andre@vidibus.com"
     gem.homepage = "http://github.com/vidibus/vidibus-xss"
     gem.authors = ["Andre Pankratz"]
-    gem.add_dependency "rails", ">= 3.0.0.rc"
+    gem.add_dependency "rails", "~> 3.0.0"
     gem.add_dependency "nokogiri"
     gem.add_dependency "vidibus-routing_error"
   end
