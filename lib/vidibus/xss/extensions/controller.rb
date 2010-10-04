@@ -115,8 +115,8 @@ module Vidibus
         def extract_xss_javascripts(dom)
           resources = []
           for resource in dom.css('head script[type="text/javascript"]')
-            path = resource.attributes["src"].value
-            file = url_for(path, :only_path => false)
+            next unless src = resource.attributes["src"]
+            file = url_for(src.value, :only_path => false)
             resources << { :type => "text/javascript", :src => file }
           end
           resources
@@ -132,8 +132,8 @@ module Vidibus
         def extract_xss_stylesheets(dom)
           resources = []
           for resource in dom.css('head link[type="text/css"]')
-            path = resource.attributes["href"].value
-            file = url_for(path, :only_path => false)
+            next unless href = resource.attributes["href"]
+            file = url_for(href.value, :only_path => false)
             media = resource.attributes["media"].value
             resources << { :type => "text/css", :src => file, :media => media }
           end
