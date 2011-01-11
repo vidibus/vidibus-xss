@@ -1,13 +1,13 @@
 // Basic loader for stylesheets and javascripts.
-  
 var xssLoader = {
+
   complete: true,       // indicates that loading has been finished
   queue: [],            // holds resources that are queued to load
   loading: undefined,   // holds resource that is currently being loaded
   preloaded: undefined, // holds resources that are included in consumer base file
   loaded: {},           // holds resources that are currently loaded
   unused: {},           // holds resources that are loaded, but not required anymore
-  
+
   /**
    * Load resources.
    */
@@ -19,12 +19,12 @@ var xssLoader = {
     $(resources).each(function() {
       var resource = this,
           src = resource.src,
-      
           name = xssLoader.resourceName(src);
+
       resource.name = name;
-      resource.scopes = {}
+      resource.scopes = {};
       resource.scopes[scope] = true;
-      
+
       // remove current file, because it is used
       delete xssLoader.unused[name];
 
@@ -38,37 +38,37 @@ var xssLoader = {
 
       xssLoader.loaded[name] = resource;
       switch (resource.type) {
-        
+
         // load css file directly
         case 'text/css':
-          var element = document.createElement("link"); 
-          element.rel = 'stylesheet'; 
-          element.href = src; 
+          var element = document.createElement("link");
+          element.rel = 'stylesheet';
+          element.href = src;
           element.media = resource.media || 'all';
           element.type = 'text/css';
           xssLoader.appendToHead(element);
           break;
-          
+
         // push script file to loading queue
         case 'text/javascript':
           xssLoader.queue.push(resource);
           break;
-          
+
         default: console.log('xssLoader.load: unsupported resource type: '+resource.type);
       }
     });
-    
+
     this.loadQueue(true);
     this.unloadUnused(scope);
   },
-  
+
   /**
    * Returns file name of resource.
    */
   resourceName: function(url) {
     return url.match(/\/([^\/\?]+)(\?.*)*$/)[1];
   },
-  
+
   /**
    * Returns list of static resources.
    */
@@ -84,22 +84,22 @@ var xssLoader = {
       });
     }
   },
-  
+
   /**
    * Loads resources in queue.
    */
   loadQueue: function(start) {
-    
+
     // Reduce queue if this method is called as callback.
-    if(start != true) {
+    if(start !== true) {
       xssLoader.queue.shift();
     }
-    
-    
+
     var resource = xssLoader.queue[0];
+
     // return if file is currently loading
     if (resource) {
-      if (resource == xssLoader.loading) {
+      if (resource === xssLoader.loading) {
         // console.log('CURRENTLY LOADING: '+resource.src);
         return;
       }
@@ -110,7 +110,7 @@ var xssLoader = {
       xssLoader.complete = true;
     }
   },
-  
+
   /**
    * Loads script src.
    */
@@ -121,15 +121,17 @@ var xssLoader = {
     } else {
       // IE
       element.onreadystatechange = function() {
-        if (this.readyState == 'loaded') callback.call(this);
-      }
+        if (this.readyState === 'loaded') {
+          callback.call(this);
+        }
+      };
     }
     element.type = 'text/javascript';
     element.src = src;
     xssLoader.appendToHead(element);
     element = null;
   },
-  
+
   /**
    * Detects unused resources and removes them.
    */
@@ -151,42 +153,39 @@ var xssLoader = {
     xssLoader.unload(resources);
     xssLoader.unused = {};
   },
-  
+
   /**
    * Removes resources given in list.
    */
   unload: function(resources) {
-    var src, data, resource;
+    var src, resource;
     $(resources).each(function() {
       resource = this;
       src = resource.src;
-
-      // console.log('REMOVE UNUSED RESOURCE: '+src);
-      
       switch (resource.type) {
-        case "text/css": 
+        case "text/css":
           $('link[href="'+src+'"]').remove();
           break;
-          
-        case "text/javascript": 
+
+        case "text/javascript":
           $('script[src="'+src+'"]').remove();
           break;
-          
+
         default: console.log('xssLoader.unload: unsupported resource type: '+resource.type);
       }
       delete xssLoader.loaded[resource.name];
     });
   },
-  
+
   /**
    * Appends given element to document head.
    */
   appendToHead: function(element) {
-    document.getElementsByTagName("head")[0].appendChild(element);
+    $("head")[0].appendChild(element);
   }
 };
 
 // Maintain compatibility
-if (typeof vidibus != "undefined") {
+if (typeof vidibus !== "undefined") {
   vidibus.loader = xssLoader;
 }
