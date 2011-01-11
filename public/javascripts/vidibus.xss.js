@@ -37,11 +37,15 @@ vidibus.xss = {
   
   /**
    * Usage:
-   *   vidibus.xss.embed('<div>Some HTML</div>', $('#scope'), 'http://host.url/');
+   *   vidibus.xss.embed('<div>Some HTML</div>', $('#scope') [, ".some element"]);
    */
-  embed: function(html, $scope, host) {
+  embed: function(html, $scope, selector) {
     html = this.transformPaths(html, $scope); // Transform local paths before embedding html into page!
-    $scope.html(html);
+    if (selector) {
+      $(selector, $scope).html(html);
+    } else {
+      $scope.html(html);
+    }
     this.setUrls($scope);
     this.setActions($scope);
     this.ready();
