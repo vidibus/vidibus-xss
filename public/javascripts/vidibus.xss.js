@@ -18,6 +18,7 @@ vidibus.xss = {
   initialized: {},      // holds true for every scope that has been initialized
   fileExtension: 'xss', // use 'xss' as file extension
   loadedUrls: {},       // store urls currently loaded in each scope
+  pathPrefix: '',       // set a fixed prefix for all paths
 
   ready: function() {
     // TODO: implement real event handler
@@ -63,6 +64,11 @@ vidibus.xss = {
   get: function(path, $scope, reload) {
     // Escape query parts
     path = path.replace("?", "%3F").replace("&", "%26").replace("=", "%3D");
+
+    // remove path prefix
+    if (typeof xssPathPrefix !== "undefined" && xssPathPrefix) {
+      path = path.replace(xssPathPrefix,'');
+    }
 
     var scopeId = $scope[0].id,
         params = scopeId+'='+this.getPath(path),
@@ -246,6 +252,10 @@ vidibus.xss = {
       params = params.split("&");
     } else {
       params = []
+
+    // prepend path prefix
+    if (typeof xssPathPrefix !== "undefined" && xssPathPrefix && !path.match(xssPathPrefix)) {
+      path = xssPathPrefix + path;
     }
 
     var host = this.getHost($scope),
