@@ -183,9 +183,18 @@ module Vidibus
           render_xss(:callback => data)
         end
 
+        # Controller method for rendering xss content.
+        def render_xss(options = {})
+          xss = render_xss_string(options)
+          xss_access_control_headers
+          self.content_type = Mime::XSS
+          self.status = 200 # force success status
+          self.response_body = xss
+        end
+
         # Main method for rendering XSS.
         # Renders given XSS resources and content to string and sets it as response_body.
-        def render_xss(options = {})
+        def render_xss_string(options = {})
           resources = options.delete(:resources)
           content = options.delete(:content)
           path = options.delete(:get)
@@ -235,10 +244,6 @@ module Vidibus
             xss_content = %(var #{function_name}=function(){if(xssLoader.complete){#{xss_content}}else{window.setTimeout('#{function_name}()',100);}};#{function_name}();)
           end
           xss << xss_content
-          xss_access_control_headers
-          self.content_type = Mime::XSS
-          self.status = 200 # force success status
-          self.response_body = xss
         end
 
         # Generates random string for current cycle.
