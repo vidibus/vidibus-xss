@@ -310,8 +310,14 @@ module Vidibus
 
             # embed xss.get
             if path = options[:path]
-              content = render_to_string(:template => "layouts/#{get_layout(:xss)}")
+              template = options[:template]
+              if template === false
+                xss = {}
+              else
+                template ||= "layouts/#{get_layout(:xss)}"
+                content = render_to_string(:template => template)
                 xss = extract_xss(content)
+              end
               xss[:get] = "/#{path}"
               xss.delete(:content) # Ensure that not content will be embedded!
 
