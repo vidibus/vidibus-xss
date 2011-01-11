@@ -19,6 +19,10 @@ vidibus.xss = {
   fileExtension: 'xss', // use 'xss' as file extension
   loadedUrls: {},       // store urls currently loaded in each scope
 
+  ready: function() {
+    // TODO: implement real event handler
+  },
+
   /**
    * Detects scope of script block to be executed. 
    * Must be called from embedding page.
@@ -40,6 +44,7 @@ vidibus.xss = {
     $scope.html(html);
     this.setUrls($scope);
     this.setActions($scope);
+    this.ready();
   },
   
   /**
