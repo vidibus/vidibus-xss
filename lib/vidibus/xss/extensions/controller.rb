@@ -8,7 +8,7 @@ module Vidibus
         extend ActiveSupport::Concern
 
         included do
-          helper_method :url_for, :xss_request?, :fullpath_url
+          helper_method :url_for, :xss_request?, :fullpath_url, :render_xss_string, :extract_xss
           respond_to :html, :xss
           rescue_from ActionController::RoutingError, :with => :rescue_404
         end
