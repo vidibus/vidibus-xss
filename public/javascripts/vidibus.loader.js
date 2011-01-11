@@ -1,6 +1,6 @@
 // Basic loader for stylesheets and javascripts.
-vidibus.loader = {
   
+var xssLoader = {
   complete: true,       // indicates that loading has been finished
   queue: [],            // holds resources that are queued to load
   loading: undefined,   // holds resource that is currently being loaded
@@ -19,24 +19,24 @@ vidibus.loader = {
     $(resources).each(function() {
       var resource = this,
           src = resource.src,
-          name = vidibus.loader.resourceName(src);
       
+          name = xssLoader.resourceName(src);
       resource.name = name;
       resource.scopes = {}
       resource.scopes[scope] = true;
       
       // remove current file, because it is used
-      delete vidibus.loader.unused[name];
+      delete xssLoader.unused[name];
 
       // skip files that have already been loaded
-      if (vidibus.loader.loaded[name]) {
-        vidibus.loader.loaded[name].scopes[scope] = true; // add current scope
+      if (xssLoader.loaded[name]) {
+        xssLoader.loaded[name].scopes[scope] = true; // add current scope
         return; // continue
-      } else if (vidibus.loader.preloaded[name]) {
+      } else if (xssLoader.preloaded[name]) {
         return; // continue
       }
-      
-      vidibus.loader.loaded[name] = resource;
+
+      xssLoader.loaded[name] = resource;
       switch (resource.type) {
         
         // load css file directly
@@ -46,15 +46,15 @@ vidibus.loader = {
           element.href = src; 
           element.media = resource.media || 'all';
           element.type = 'text/css';
-          vidibus.loader.appendToHead(element);
+          xssLoader.appendToHead(element);
           break;
           
         // push script file to loading queue
         case 'text/javascript':
-          vidibus.loader.queue.push(resource);
+          xssLoader.queue.push(resource);
           break;
           
-        default: console.log('vidibus.loader.load: unsupported resource type: '+resource.type);
+        default: console.log('xssLoader.load: unsupported resource type: '+resource.type);
       }
     });
     
@@ -73,14 +73,14 @@ vidibus.loader = {
    * Returns list of static resources.
    */
   initStaticResources: function() {
-    if (vidibus.loader.preloaded == undefined) {
-      vidibus.loader.preloaded = {};
+    if (xssLoader.preloaded === undefined) {
+      xssLoader.preloaded = {};
       var $resource, src, name;
       $('script[src],link[href]',$('head')).each(function() {
         $resource = $(this);
         src = $resource.attr('src') || $resource.attr('href');
-        name = vidibus.loader.resourceName(src);
-        vidibus.loader.preloaded[name] = src;
+        name = xssLoader.resourceName(src);
+        xssLoader.preloaded[name] = src;
       });
     }
   },
@@ -92,22 +92,22 @@ vidibus.loader = {
     
     // Reduce queue if this method is called as callback.
     if(start != true) {
-      vidibus.loader.queue.shift();
+      xssLoader.queue.shift();
     }
     
-    var resource = vidibus.loader.queue[0];
     
+    var resource = xssLoader.queue[0];
     // return if file is currently loading
     if (resource) {
-      if (resource == vidibus.loader.loading) {
+      if (resource == xssLoader.loading) {
         // console.log('CURRENTLY LOADING: '+resource.src);
         return;
       }
-      vidibus.loader.loading = resource;
-      vidibus.loader.loadScript(resource.src, vidibus.loader.loadQueue);
+      xssLoader.loading = resource;
+      xssLoader.loadScript(resource.src, xssLoader.loadQueue);
     } else {
-      vidibus.loader.loading = undefined;
-      vidibus.loader.complete = true;
+      xssLoader.loading = undefined;
+      xssLoader.complete = true;
     }
   },
   
@@ -126,7 +126,7 @@ vidibus.loader = {
     }
     element.type = 'text/javascript';
     element.src = src;
-    vidibus.loader.appendToHead(element);
+    xssLoader.appendToHead(element);
     element = null;
   },
   
@@ -135,20 +135,21 @@ vidibus.loader = {
    */
   unloadUnused: function(scope) {
     var name, resources = [];
-    for(name in vidibus.loader.unused) {
+    for(name in xssLoader.unused) {
+      if (xssLoader.unused.hasOwnProperty(name)) {
+        // Remove dependency for given scope.
+        if (xssLoader.unused[name].scopes[scope]) {
+          delete xssLoader.unused[name].scopes[scope];
+        }
 
-      // Remove dependency for given scope.
-      if (vidibus.loader.unused[name].scopes[scope]) {
-        delete vidibus.loader.unused[name].scopes[scope];
-      }
-      
-      // Unload resource if it has no dependencies left.
-      if ($.isEmptyObject(vidibus.loader.unused[name].scopes)) {
-        resources.push(vidibus.loader.unused[name]);
+        // Unload resource if it has no dependencies left.
+        if ($.isEmptyObject(xssLoader.unused[name].scopes)) {
+          resources.push(xssLoader.unused[name]);
+        }
       }
     }
-    vidibus.loader.unload(resources);
-    vidibus.loader.unused = {}
+    xssLoader.unload(resources);
+    xssLoader.unused = {};
   },
   
   /**
@@ -171,9 +172,9 @@ vidibus.loader = {
           $('script[src="'+src+'"]').remove();
           break;
           
-        default: console.log('vidibus.loader.unload: unsupported resource type: '+resource.type);
+        default: console.log('xssLoader.unload: unsupported resource type: '+resource.type);
       }
-      delete vidibus.loader.loaded[resource.name];
+      delete xssLoader.loaded[resource.name];
     });
   },
   
@@ -184,3 +185,8 @@ vidibus.loader = {
     document.getElementsByTagName("head")[0].appendChild(element);
   }
 };
+
+// Maintain compatibility
+if (typeof vidibus != "undefined") {
+  vidibus.loader = xssLoader;
+}

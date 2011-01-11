@@ -210,7 +210,7 @@ module Vidibus
 
           # render load invocations of XSS resources
           if resources and resources.any?
-            xss << %(vidibus.loader.load(#{resources.to_json},'#{params[:scope]}');)
+            xss << %(xssLoader.load(#{resources.to_json},'#{params[:scope]}');)
             defer = true
           end
 
@@ -232,7 +232,7 @@ module Vidibus
           # wait until resources have been loaded, before rendering XSS content
           if defer
             function_name = "rx#{xss_random_string}"
-            xss_content = %(var #{function_name}=function(){if(vidibus.loader.complete){#{xss_content}}else{window.setTimeout('#{function_name}()',100);}};#{function_name}();)
+            xss_content = %(var #{function_name}=function(){if(xssLoader.complete){#{xss_content}}else{window.setTimeout('#{function_name}()',100);}};#{function_name}();)
           end
           xss << xss_content
           xss_access_control_headers
