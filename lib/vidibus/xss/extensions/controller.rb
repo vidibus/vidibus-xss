@@ -140,13 +140,13 @@ module Vidibus
           resources
         end
 
-        # Renders given content string to XSS hash of resources and content.
+        # Extracts XSS hash of resources and content from given content string.
         # If html content is given, the method tries to extract title,
         # stylesheets and javascripts from head and content from body.
         # TODO: Allow script blocks! Add them to body?
         # TODO: Allow style blocks?
         # TODO: Check for html content
-        def render_to_xss(content)
+        def extract_xss(content)
           dom = Nokogiri::HTML(content)
           {
             :resources => extract_xss_javascripts(dom) + extract_xss_stylesheets(dom),
@@ -306,14 +306,14 @@ module Vidibus
             # embed xss.get
             if path = options[:path]
               content = render_to_string(:template => "layouts/#{get_layout(:xss)}")
-              xss = render_to_xss(content)
+                xss = extract_xss(content)
               xss[:get] = "/#{path}"
               xss.delete(:content) # Ensure that not content will be embedded!
 
             # embed xss content
             else
               content = render_to_string(*args, &block)
-              xss = render_to_xss(content)
+              xss = extract_xss(content)
             end
 
             render_xss(xss)
