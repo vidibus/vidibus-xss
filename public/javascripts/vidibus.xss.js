@@ -289,49 +289,6 @@ $(function($){
  * This is the default handler provided in rails.js extended to accept delete method.
  */
 $(function($) {
-  $.fn.extend({
-    
-    /**
-     * Handles execution of remote calls firing overridable events along the way.
-     */
-    callAjax: function(url) {
-      var el = this,
-        method = el.attr('method') || el.attr('data-method') || 'GET',
-        dataType = el.attr('data-type')  || 'script';
-      if (!url) url = el.attr('action') || el.attr('href');
-      if (url === undefined) {
-        throw "No URL specified for remote call (action or href must be present).";
-      } else {
-        if (el.triggerAndReturn('ajax:before')) {
-          var data = el.is('form') ? el.serializeArray() : {};
-          if (method == 'delete') {
-            data['_method'] = method;
-            method = 'POST';
-          }
-          $.extend(data, vidibus.csrf.data());
-          $.ajax({
-            url: url,
-            data: data,
-            dataType: dataType,
-            type: method.toUpperCase(),
-            beforeSend: function(xhr) {
-              el.trigger('ajax:loading', xhr);
-            },
-            success: function(data, status, xhr) {
-              el.trigger('ajax:success', [data, status, xhr]);
-            },
-            complete: function(xhr) {
-              el.trigger('ajax:complete', xhr);
-            },
-            error: function(xhr, status, error) {
-              el.trigger('ajax:failure', [xhr, status, error]);
-            }
-          });
-        }
-        el.trigger('ajax:after');
-      }
-    }
-  });
   
   /**
    * Extend xhr object to send credentials and force XMLHttpRequest.
