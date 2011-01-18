@@ -208,7 +208,7 @@ module Vidibus
 
           # determine scope
           if !(scope = params[:scope]).blank?
-            scope = "$('##{scope}')"
+            scope = "jQuery('##{scope}')"
           else
             scope = "$s#{xss_random_string}"
             xss << %(var #{scope}=vidibus.xss.detectScope();)
