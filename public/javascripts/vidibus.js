@@ -1,11 +1,5 @@
-// if (typeof console == undefined) {
-//   console = {};
-// }
-
-
 var vidibus = {};
-
-jQuery(function ($) {
+(function($) {
   
   /**
    * Assign global cross-site request forgery protection variables.
@@ -28,14 +22,13 @@ jQuery(function ($) {
   if(vidibus.csrf.param && vidibus.csrf.token) {
     vidibus.csrf.data[vidibus.csrf.param] = encodeURIComponent(vidibus.csrf.token);
   }
-});
-
+}(jQuery));
 
 /**
  * Implement ajax handler.
  * This is the default handler provided in rails.js with some extensions.
  */
-$(function($) {
+(function($) {
   $.fn.extend({
 
     /**
@@ -43,24 +36,24 @@ $(function($) {
      */
     callAjax: function(url, method, data) {
       var el = this,
-        method = method || el.attr('method') || el.attr('data-method') || 'GET',
+        meth = method || el.attr('method') || el.attr('data-method') || 'GET',
         dataType = el.attr('data-type')  || 'script';
-      if (!url) url = el.attr('action') || el.attr('href') || el.attr('data-url');
+      if (!url) {url = el.attr('action') || el.attr('href') || el.attr('data-url');}
       if (url === undefined) {
         throw "No URL specified for remote call (action or href must be present).";
       } else {
         if (el.triggerAndReturn('ajax:before')) {
           data = data || el.is('form') ? el.serializeArray() : {};
-          if (method == 'delete') {
-            data['_method'] = method;
-            method = 'POST';
+          if (meth === 'delete') {
+            data._method = meth;
+            meth = 'POST';
           }
           $.extend(data, vidibus.csrf.data());
           $.ajax({
             url: url,
             data: data,
             dataType: dataType,
-            type: method.toUpperCase(),
+            type: meth.toUpperCase(),
             beforeSend: function(xhr) {
               el.trigger('ajax:loading', xhr);
             },
@@ -79,4 +72,4 @@ $(function($) {
       }
     }
   });
-});
+}(jQuery));
