@@ -79,7 +79,7 @@ module Vidibus
             if request.format == :xss
               true
             elsif request.format == "*/*"
-              if env["REQUEST_URI"].match(/[^\?]+\.xss/) # try to detect format by file extension
+              if env["REQUEST_URI"] && env["REQUEST_URI"].match(/[^\?]+\.xss/) # try to detect format by file extension
                 true
               end
             end
