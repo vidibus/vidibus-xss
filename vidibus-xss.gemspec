@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{vidibus-xss}
-  s.version = "0.1.17"
+  s.version = "0.1.18"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Andre Pankratz"]
-  s.date = %q{2011-01-18}
+  s.date = %q{2011-05-06}
   s.description = %q{Drop-in XSS support for remote applications.}
   s.email = %q{andre@vidibus.com}
   s.extra_rdoc_files = [
@@ -19,7 +19,6 @@ Gem::Specification.new do |s|
     ".bundle/config",
     ".rspec",
     "Gemfile",
-    "Gemfile.lock",
     "MIT-LICENSE",
     "README.rdoc",
     "Rakefile",
@@ -42,14 +41,13 @@ Gem::Specification.new do |s|
   ]
   s.homepage = %q{http://github.com/vidibus/vidibus-xss}
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.rubygems_version = %q{1.6.2}
   s.summary = %q{Drop-in XSS support for remote applications.}
   s.test_files = [
     "spec/spec_helper.rb"
   ]
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
@@ -59,7 +57,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<vidibus-uuid>, [">= 0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
       s.add_development_dependency(%q<rake>, [">= 0"])
-      s.add_development_dependency(%q<rspec>, ["~> 2.0.0.beta.20"])
+      s.add_development_dependency(%q<rspec>, ["~> 2.0"])
       s.add_development_dependency(%q<rr>, [">= 0"])
       s.add_development_dependency(%q<relevance-rcov>, [">= 0"])
     else
@@ -69,7 +67,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<vidibus-uuid>, [">= 0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
       s.add_dependency(%q<rake>, [">= 0"])
-      s.add_dependency(%q<rspec>, ["~> 2.0.0.beta.20"])
+      s.add_dependency(%q<rspec>, ["~> 2.0"])
       s.add_dependency(%q<rr>, [">= 0"])
       s.add_dependency(%q<relevance-rcov>, [">= 0"])
     end
@@ -80,7 +78,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<vidibus-uuid>, [">= 0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<rake>, [">= 0"])
-    s.add_dependency(%q<rspec>, ["~> 2.0.0.beta.20"])
+    s.add_dependency(%q<rspec>, ["~> 2.0"])
     s.add_dependency(%q<rr>, [">= 0"])
     s.add_dependency(%q<relevance-rcov>, [">= 0"])
   end
